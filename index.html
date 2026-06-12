@@ -1,48 +1,196 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>City Governance Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Gated Society Issue Management Dashboard</title>
+
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f7fb;
+      margin: 0;
+      padding: 0;
+      color: #1f2937;
+    }
+
+    header {
+      background: #0f172a;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    header p {
+      margin-top: 10px;
+      color: #cbd5e1;
+    }
+
+    main {
+      max-width: 850px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .project-note {
+      background: #e0f2fe;
+      border-left: 5px solid #0284c7;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      font-size: 15px;
+    }
+
+    .form-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    input {
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    button {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .submit-btn {
+      background: #2563eb;
+      color: white;
+    }
+
+    .submit-btn:hover {
+      background: #1d4ed8;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 14px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .issue-text {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .status-open {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-resolved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .delete-btn {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 25px;
+      color: #64748b;
+      font-size: 14px;
+    }
+  </style>
 </head>
 
 <body>
 
-<h1>City Governance Dashboard</h1>
-<p>🚀 Hosted live on AWS EC2</p>
+<header>
+  <h1>Gated Society Issue Management Dashboard</h1>
+  <p>Cloud-hosted issue tracking application deployed on AWS EC2</p>
+</header>
 
-<input type="text" id="username" placeholder="Enter your name">
-<br><br>
+<main>
+  <div class="project-note">
+    This dashboard is built for a gated society use case where residents can report and track issues related to maintenance, water supply, parking, security updates, housekeeping, and other society-level concerns.
+  </div>
 
-<input type="text" id="issueInput" placeholder="Enter issue">
-<button onclick="addIssue()">Submit</button>
+  <div class="form-box">
+    <input type="text" id="username" placeholder="Enter resident name" />
+    <input type="text" id="issueInput" placeholder="Enter society issue" />
+    <button class="submit-btn" onclick="addIssue()">Submit Issue</button>
+  </div>
 
-<ul id="issueList"></ul>
+  <h2>Reported Issues</h2>
+  <ul id="issueList"></ul>
+
+  <div class="footer">
+    Hosted on AWS EC2 using Nginx | Backend: Firebase Firestore
+  </div>
+</main>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+/*
+  Replace these values with your Firebase project configuration.
+  Keep Firestore rules secure before making the repository public.
+*/
 const firebaseConfig = {
   apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "city-dashboard-82b8b.firebaseapp.com",
-  projectId: "city-dashboard-82b8b",
-  storageBucket: "city-dashboard-82b8b.appspot.com",
-  messagingSenderId: "504514126703",
-  appId: "1:504514126703:web:71135c17847d14168bfe9a"
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ➕ Add Issue
+// Add new issue
 window.addIssue = async function () {
-  let user = document.getElementById("username").value;
-  let input = document.getElementById("issueInput");
-  let value = input.value;
+  const user = document.getElementById("username").value.trim();
+  const input = document.getElementById("issueInput");
+  const value = input.value.trim();
 
   if (!user || !value) {
-    alert("Enter username and issue");
+    alert("Please enter resident name and issue details.");
     return;
   }
 
@@ -56,42 +204,53 @@ window.addIssue = async function () {
   input.value = "";
 };
 
-// 🗑 Delete Issue
+// Delete issue
 window.deleteIssue = async function (id) {
   await deleteDoc(doc(db, "issues", id));
 };
 
-// 🔁 Toggle Status
+// Toggle issue status
 window.toggleStatus = async function (id, currentStatus) {
-  let newStatus = currentStatus === "OPEN" ? "RESOLVED" : "OPEN";
+  const newStatus = currentStatus === "OPEN" ? "RESOLVED" : "OPEN";
 
   await updateDoc(doc(db, "issues", id), {
     status: newStatus
   });
 };
 
-// 🔄 Real-time listener
+// Real-time issue listener
 function loadIssues() {
-  let list = document.getElementById("issueList");
+  const list = document.getElementById("issueList");
 
   onSnapshot(collection(db, "issues"), (snapshot) => {
     list.innerHTML = "";
 
     snapshot.forEach((item) => {
-      let data = item.data();
+      const data = item.data();
+      const li = document.createElement("li");
 
-      let li = document.createElement("li");
+      const statusClass = data.status === "RESOLVED" ? "status-resolved" : "status-open";
+      const statusText = data.status === "RESOLVED" ? "✅ RESOLVED" : "OPEN";
 
-     li.innerHTML = `
-  <b>${data.user}</b>: ${data.text}
-  <button onclick="toggleStatus('${item.id}', '${data.status}')"
-    style="color: ${data.status === 'RESOLVED' ? 'green' : 'black'}; font-weight: bold;">
-    ${data.status === 'RESOLVED' ? '✅ RESOLVED' : '[OPEN]'}
-  </button>
-  <button onclick="deleteIssue('${item.id}')">❌</button>
-`;
+      li.innerHTML = `
+        <div class="issue-text">
+          <strong>${data.user}</strong>: ${data.text}
+        </div>
 
-    list.appendChild(li);
+        <button
+          class="${statusClass}"
+          onclick="toggleStatus('${item.id}', '${data.status}')">
+          ${statusText}
+        </button>
+
+        <button
+          class="delete-btn"
+          onclick="deleteIssue('${item.id}')">
+          Delete
+        </button>
+      `;
+
+      list.appendChild(li);
     });
   });
 }
@@ -101,3 +260,4 @@ loadIssues();
 
 </body>
 </html>
+```
